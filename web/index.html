@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nebulus - Interface Web</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>🌌 Nebulus</h1>
+      <p>Rede Genérica Descentralizada com Blockchain Modular</p>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        <h2>Status da Conexão</h2>
+      </div>
+      <div>
+        <p>
+          <span id="connection-status" class="status-indicator status-disconnected"></span>
+          <span id="connection-status-text">Desconectado</span>
+        </p>
+        <div id="node-info">
+          <p>Carregando informações do nó...</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="alerts-container"></div>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="tab-blocks">Blocos</div>
+      <div class="tab" data-tab="tab-transaction">Nova Transação</div>
+      <div class="tab" data-tab="tab-file">Enviar Arquivo</div>
+      <div class="tab" data-tab="tab-keys">Chaves</div>
+    </div>
+
+    <!-- Blocos Tab -->
+    <div id="tab-blocks" class="tab-content active">
+      <div class="card">
+        <div class="card-header">
+          <h2>Blocos na Blockchain</h2>
+        </div>
+        <div id="blocks-container" class="blocks-container">
+          <p>Carregando blocos...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nova Transação Tab -->
+    <div id="tab-transaction" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <h2>Criar Nova Transação</h2>
+        </div>
+        <form id="transaction-form">
+          <div class="form-group">
+            <label for="transaction-type">Tipo de Transação</label>
+            <select id="transaction-type" required>
+              <option value="transaction">Transação</option>
+              <option value="event">Evento</option>
+              <option value="identity">Identidade</option>
+              <option value="custom">Personalizado</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="transaction-payload">Payload (JSON)</label>
+            <textarea id="transaction-payload" required placeholder='{"from": "Alice", "to": "Bob", "amount": 10, "currency": "NEB"}'></textarea>
+          </div>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="transaction-encrypt">
+              Criptografar dados
+            </label>
+          </div>
+          <button type="submit" class="btn btn-block">Enviar Transação</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Enviar Arquivo Tab -->
+    <div id="tab-file" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <h2>Enviar Arquivo para a Blockchain</h2>
+        </div>
+        <form id="file-form">
+          <div class="form-group">
+            <label for="file-input">Selecione um arquivo</label>
+            <div class="file-input-container">
+              <span class="file-input-label">Escolher arquivo</span>
+              <input type="file" id="file-input" required>
+            </div>
+            <div id="file-name" class="file-name"></div>
+          </div>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="file-encrypt">
+              Criptografar arquivo
+            </label>
+          </div>
+          <button type="submit" class="btn btn-block">Enviar Arquivo</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Chaves Tab -->
+    <div id="tab-keys" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <h2>Suas Chaves Criptográficas</h2>
+        </div>
+        <p>Estas são suas chaves para assinar transações na rede Nebulus. Guarde sua chave privada em um local seguro!</p>
+        
+        <div class="form-group">
+          <label>Chave Pública</label>
+          <div class="key-display" id="user-public-key">Gerando...</div>
+          <button class="copy-btn" data-copy="user-public-key">Copiar</button>
+        </div>
+        
+        <div class="form-group">
+          <label>Chave Privada</label>
+          <div class="key-display" id="user-private-key">Gerando...</div>
+          <button class="copy-btn" data-copy="user-private-key">Copiar</button>
+        </div>
+        
+        <button id="generate-key-btn" class="btn">Gerar Nova Chave</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <p>Nebulus - Rede Genérica Descentralizada com Blockchain Modular</p>
+      <p>Desenvolvido com TypeScript + Bun para alta performance e flexibilidade</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

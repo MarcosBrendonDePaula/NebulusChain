@@ -1,0 +1,12 @@
+{
+  "type": "transaction",
+  "payload": {
+    "from": "Alice",
+    "to": "Bob",
+    "amount": 10,
+    "currency": "NEB",
+    "description": "Pagamento pelo serviço",
+    "timestamp": 1681569600000
+  },
+  "requiredSigners": 1
+}

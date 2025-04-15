@@ -1,0 +1,15 @@
+{
+  "type": "event",
+  "payload": {
+    "name": "Conferência Blockchain 2025",
+    "organizer": "Nebulus Foundation",
+    "location": "São Paulo, Brasil",
+    "date": "2025-05-15T10:00:00Z",
+    "description": "Conferência sobre tecnologias blockchain e descentralização",
+    "attendees": ["Alice", "Bob", "Charlie", "Dave"],
+    "maxCapacity": 100,
+    "ticketPrice": 50,
+    "currency": "NEB"
+  },
+  "requiredSigners": 2
+}

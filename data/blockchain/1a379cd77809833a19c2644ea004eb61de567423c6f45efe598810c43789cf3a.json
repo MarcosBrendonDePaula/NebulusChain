@@ -1,0 +1,12 @@
+{
+  "timestamp": 1744748748712,
+  "data": {
+    "type": "identity",
+    "payload": "Genesis Block - Nebulus Network",
+    "signatures": [],
+    "requiredSigners": 0
+  },
+  "previousHash": "0",
+  "hash": "1a379cd77809833a19c2644ea004eb61de567423c6f45efe598810c43789cf3a",
+  "nonce": 0
+}
