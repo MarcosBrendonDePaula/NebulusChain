@@ -206,7 +206,7 @@ textarea {
   background-color: var(--danger-color);
 }
 
-.blocks-container {
+.blocks-container, .wallets-container {
   max-height: 400px;
   overflow-y: auto;
   border: 1px solid var(--border-color);
@@ -214,15 +214,198 @@ textarea {
   padding: 10px;
 }
 
-.block-item {
+.block-item, .wallet-item {
   border-bottom: 1px solid var(--border-color);
   padding: 10px;
   margin-bottom: 10px;
 }
 
-.block-item:last-child {
+.block-item:last-child, .wallet-item:last-child {
   border-bottom: none;
   margin-bottom: 0;
+}
+
+.wallet-item {
+  position: relative;
+}
+
+.wallet-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.wallet-balance {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin: 10px 0;
+}
+
+.wallet-address {
+  font-family: monospace;
+  word-break: break-all;
+  background-color: #f5f5f5;
+  padding: 5px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.wallet-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.wallet-item-actions, .asset-item-actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+/* Estilos para criptoativos */
+.assets-container {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 10px;
+}
+
+.asset-item {
+  position: relative;
+  border-bottom: 1px solid var(--border-color);
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.asset-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.asset-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.asset-symbol {
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-left: 10px;
+}
+
+.asset-supply {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin: 10px 0;
+}
+
+.asset-creator {
+  font-family: monospace;
+  word-break: break-all;
+  background-color: #f5f5f5;
+  padding: 5px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.asset-description {
+  margin: 10px 0;
+  font-style: italic;
+  color: #666;
+}
+
+.asset-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.asset-balance-item {
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.asset-balance-symbol {
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.asset-balance-amount {
+  font-family: monospace;
+  font-size: 1.1rem;
+}
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  padding: 30px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.seed-phrase, .private-key {
+  background-color: #f5f5f5;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 15px;
+  margin: 20px 0;
+  font-family: monospace;
+  font-size: 1.2rem;
+  line-height: 1.8;
+  text-align: center;
+  color: var(--primary-color);
+  font-weight: 500;
+  overflow-wrap: break-word;
+}
+
+.seed-phrase {
+  word-spacing: 8px;
+}
+
+.private-key {
+  font-size: 1rem;
+}
+
+.modal-content h3 {
+  margin-top: 25px;
+  margin-bottom: 5px;
+  color: var(--primary-color);
+}
+
+.modal-content button {
+  margin-top: 10px;
+}
+
+.modal-content button:not(:last-child) {
+  margin-right: 10px;
 }
 
 .block-header {

@@ -8,7 +8,15 @@
     "start": "bun index.ts",
     "test": "bun test",
     "build": "bun build index.ts --outdir ./dist --target bun",
-    "compile": "bun build index.ts --compile --outfile nebulus"
+    "compile": "bun build index.ts --compile --outfile nebulus",
+    "blockchain": "bun index.ts",
+    "blockchain:fast": "bun index.ts --interval 1 --max-tx 20",
+    "blockchain:slow": "bun index.ts --interval 100 --max-tx 5",
+    "blockchain:dev": "bun index.ts --interval 10 --max-tx 5 --port 8080",
+    "cli": "bun index.ts blocks",
+    "cli:wallets": "bun index.ts wallets",
+    "cli:assets": "bun index.ts assets",
+    "cli:transactions": "bun index.ts transactions"
   },
   "keywords": [
     "blockchain",
@@ -21,12 +29,14 @@
   "license": "MIT",
   "dependencies": {
     "@libp2p/bootstrap": "^8.0.0",
-    "@libp2p/tcp": "^8.0.0",
-    "@libp2p/websockets": "^7.0.0",
     "@libp2p/mplex": "^8.0.0",
     "@libp2p/noise": "^12.0.0",
-    "libp2p": "^0.46.0",
+    "@libp2p/tcp": "^8.0.0",
+    "@libp2p/websockets": "^7.0.0",
+    "bip39": "^3.1.0",
     "commander": "^11.0.0",
+    "hdkey": "^2.1.0",
+    "libp2p": "^0.46.0",
     "ws": "^8.13.0"
   },
   "devDependencies": {

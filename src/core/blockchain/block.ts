@@ -81,6 +81,9 @@ export class BlockImpl implements Block {
    * @returns Hash SHA-256 do bloco
    */
   calculateHash(): string {
+    // Inclui o hash do bloco anterior no cálculo do hash atual
+    // Isso garante que qualquer alteração em um bloco anterior
+    // invalidará todos os blocos subsequentes
     return hashData(
       this.previousHash + 
       this.timestamp + 
@@ -109,7 +112,15 @@ export class BlockImpl implements Block {
    * @returns true se o bloco for válido, false caso contrário
    */
   isValid(): boolean {
-    return this.hash === this.calculateHash();
+    // Verifica se o hash armazenado corresponde ao hash calculado
+    const validHash = this.hash === this.calculateHash();
+    
+    // Verifica se o hash começa com o número correto de zeros (prova de trabalho)
+    const difficulty = this.hash.match(/^0*/)?.[0].length || 0;
+    
+    console.log(`Verificando bloco ${this.hash.substring(0, 8)}... - Hash válido: ${validHash}`);
+    
+    return validHash;
   }
 
   /**

@@ -35,6 +35,8 @@
 
     <div class="tabs">
       <div class="tab active" data-tab="tab-blocks">Blocos</div>
+      <div class="tab" data-tab="tab-wallets">Carteiras</div>
+      <div class="tab" data-tab="tab-assets">Criptoativos</div>
       <div class="tab" data-tab="tab-transaction">Nova Transação</div>
       <div class="tab" data-tab="tab-file">Enviar Arquivo</div>
       <div class="tab" data-tab="tab-keys">Chaves</div>
@@ -105,6 +107,217 @@
             </label>
           </div>
           <button type="submit" class="btn btn-block">Enviar Arquivo</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Carteiras Tab -->
+    <div id="tab-wallets" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <h2>Suas Carteiras</h2>
+        </div>
+        <div id="wallets-container" class="wallets-container">
+          <p>Carregando carteiras...</p>
+        </div>
+        <div class="wallet-actions">
+          <button id="create-wallet-btn" class="btn">Criar Nova Carteira</button>
+          <button id="import-wallet-btn" class="btn btn-secondary">Importar Carteira</button>
+          <button id="refresh-wallets-btn" class="btn btn-secondary">Atualizar Saldos</button>
+        </div>
+      </div>
+      
+      <!-- Formulário para criar carteira -->
+      <div id="create-wallet-form" class="card hidden">
+        <div class="card-header">
+          <h2>Criar Nova Carteira</h2>
+        </div>
+        <form id="wallet-create-form">
+          <div class="form-group">
+            <label for="wallet-label">Nome da Carteira</label>
+            <input type="text" id="wallet-label" required placeholder="Minha Carteira">
+          </div>
+          <button type="submit" class="btn btn-block">Criar Carteira</button>
+        </form>
+      </div>
+      
+      <!-- Formulário para importar carteira -->
+      <div id="import-wallet-form" class="card hidden">
+        <div class="card-header">
+          <h2>Importar Carteira</h2>
+        </div>
+        <form id="wallet-import-form">
+          <div class="form-group">
+            <label for="wallet-private-key">Chave Privada</label>
+            <textarea id="wallet-private-key" required placeholder="Cole aqui sua chave privada"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="wallet-import-label">Nome da Carteira</label>
+            <input type="text" id="wallet-import-label" required placeholder="Carteira Importada">
+          </div>
+          <button type="submit" class="btn btn-block">Importar Carteira</button>
+        </form>
+      </div>
+      
+      <!-- Formulário para enviar transação entre carteiras -->
+      <div id="send-transaction-form" class="card hidden">
+        <div class="card-header">
+          <h2>Enviar Transação</h2>
+        </div>
+        <form id="wallet-send-form">
+          <div class="form-group">
+            <label for="wallet-from">De (Carteira de Origem)</label>
+            <select id="wallet-from" required>
+              <option value="">Selecione uma carteira</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="wallet-to">Para (Carteira de Destino)</label>
+            <select id="wallet-to" required>
+              <option value="">Selecione uma carteira</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="wallet-amount">Quantidade</label>
+            <input type="number" id="wallet-amount" required min="0.01" step="0.01" placeholder="0.00">
+          </div>
+          <button type="submit" class="btn btn-block">Enviar</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Criptoativos Tab -->
+    <div id="tab-assets" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <h2>Seus Criptoativos</h2>
+        </div>
+        <div id="assets-container" class="assets-container">
+          <p>Carregando criptoativos...</p>
+        </div>
+        <div class="asset-actions">
+          <button id="create-asset-btn" class="btn">Criar Novo Criptoativo</button>
+          <button id="refresh-assets-btn" class="btn btn-secondary">Atualizar Saldos</button>
+        </div>
+      </div>
+      
+      <!-- Formulário para criar criptoativo -->
+      <div id="create-asset-form" class="card hidden">
+        <div class="card-header">
+          <h2>Criar Novo Criptoativo</h2>
+        </div>
+        <form id="asset-create-form">
+          <div class="form-group">
+            <label for="asset-name">Nome do Criptoativo</label>
+            <input type="text" id="asset-name" required placeholder="Meu Token">
+          </div>
+          <div class="form-group">
+            <label for="asset-symbol">Símbolo</label>
+            <input type="text" id="asset-symbol" required placeholder="MTK" maxlength="10">
+          </div>
+          <div class="form-group">
+            <label for="asset-decimals">Casas Decimais</label>
+            <input type="number" id="asset-decimals" required min="0" max="18" value="8">
+          </div>
+          <div class="form-group">
+            <label for="asset-total-supply">Oferta Total</label>
+            <input type="number" id="asset-total-supply" required min="1" value="1000000">
+          </div>
+          <div class="form-group">
+            <label for="asset-description">Descrição</label>
+            <textarea id="asset-description" placeholder="Descreva seu criptoativo"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="asset-creator">Endereço do Criador</label>
+            <select id="asset-creator" required>
+              <option value="">Selecione uma carteira</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-block">Criar Criptoativo</button>
+        </form>
+      </div>
+      
+      <!-- Formulário para mint de criptoativo -->
+      <div id="mint-asset-form" class="card hidden">
+        <div class="card-header">
+          <h2>Criar (Mint) Tokens</h2>
+        </div>
+        <form id="asset-mint-form">
+          <div class="form-group">
+            <label for="mint-asset-id">Criptoativo</label>
+            <select id="mint-asset-id" required>
+              <option value="">Selecione um criptoativo</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="mint-to-address">Endereço de Destino</label>
+            <select id="mint-to-address" required>
+              <option value="">Selecione uma carteira</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="mint-amount">Quantidade</label>
+            <input type="number" id="mint-amount" required min="1" placeholder="0">
+          </div>
+          <button type="submit" class="btn btn-block">Criar Tokens</button>
+        </form>
+      </div>
+      
+      <!-- Formulário para transferir criptoativo -->
+      <div id="transfer-asset-form" class="card hidden">
+        <div class="card-header">
+          <h2>Transferir Tokens</h2>
+        </div>
+        <form id="asset-transfer-form">
+          <div class="form-group">
+            <label for="transfer-asset-id">Criptoativo</label>
+            <select id="transfer-asset-id" required>
+              <option value="">Selecione um criptoativo</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="transfer-from-address">De (Carteira de Origem)</label>
+            <select id="transfer-from-address" required>
+              <option value="">Selecione uma carteira</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="transfer-to-address">Para (Carteira de Destino)</label>
+            <select id="transfer-to-address" required>
+              <option value="">Selecione uma carteira</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="transfer-amount">Quantidade</label>
+            <input type="number" id="transfer-amount" required min="0.00000001" step="0.00000001" placeholder="0">
+          </div>
+          <button type="submit" class="btn btn-block">Transferir Tokens</button>
+        </form>
+      </div>
+      
+      <!-- Formulário para burn de criptoativo -->
+      <div id="burn-asset-form" class="card hidden">
+        <div class="card-header">
+          <h2>Destruir (Burn) Tokens</h2>
+        </div>
+        <form id="asset-burn-form">
+          <div class="form-group">
+            <label for="burn-asset-id">Criptoativo</label>
+            <select id="burn-asset-id" required>
+              <option value="">Selecione um criptoativo</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="burn-from-address">Endereço</label>
+            <select id="burn-from-address" required>
+              <option value="">Selecione uma carteira</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="burn-amount">Quantidade</label>
+            <input type="number" id="burn-amount" required min="0.00000001" step="0.00000001" placeholder="0">
+          </div>
+          <button type="submit" class="btn btn-block">Destruir Tokens</button>
         </form>
       </div>
     </div>

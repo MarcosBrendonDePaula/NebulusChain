@@ -18,6 +18,7 @@ export enum NodeEvent {
 // Tipos de mensagens
 export enum MessageType {
   NEW_BLOCK = 'new_block',
+  NEW_TRANSACTION = 'new_transaction',
   REQUEST_CHAIN = 'request_chain',
   CHAIN_RESPONSE = 'chain_response',
   REQUEST_BLOCK = 'request_block',

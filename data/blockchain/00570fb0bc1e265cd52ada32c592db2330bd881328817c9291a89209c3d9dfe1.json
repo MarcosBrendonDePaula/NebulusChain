@@ -1,0 +1,29 @@
+{
+  "timestamp": 1744828522091,
+  "data": {
+    "type": "transaction_batch",
+    "payload": [
+      {
+        "type": "wallet_creation",
+        "payload": {
+          "address": "NEB28fdf750245b02014d80aaec7f794355",
+          "label": "teste1",
+          "publicKey": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjGWbtZDr+HW9e9DvQOfr\nyOdVIzF1crTK8jDjBpfIwm8IuF9ZvywV28/QyvGuQe8gIlTYhT1dLncdzhys110h\nTRodlR9h/AUQ6qSGMqnGJMNr37zIOpm970am29WPkU6kwaFAx67wFxi4lzSPo0SY\nIMe4cT734+2n1oZdICU9XWVNS3kn2F3CAbzafBoEzL9kSnuHCJv5K+YdbuOnh0ud\n5b7DCOIn1HyvClRdWL1ZNyTTN+BrLAaAMjeFzeZHV76JR1PDtz8Xp5jU0kFT0Wwm\nRBF7Fl6R1RYarclqqPBHb5ML93MmfyuFOeV7UiyhS/q8GYHGnwcPqGgZgC5h8y6P\nkQIDAQAB\n-----END PUBLIC KEY-----\n",
+          "timestamp": 1744828522001
+        },
+        "signatures": [
+          {
+            "publicKey": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3sG9EmiwvbqIk/NarbQ/\nitqhtoe90QHqLBB55SAr8XUfnoUd+Y8wBRO2HFzjYKkxwsB8aDTa7Ct2y5XBOkOH\nbhdK3VmcrXiPOPGGrlI0IAqOj41UeroH+YBA/LlK5LnbAk2gwqzVmRfCkmPuE3gy\nZ0Hg0qepgG0l+I3JMTpmj0t7VDVAtNDBHSKXEpMZxmHHgHaSkLJFGEmxA1h8UZph\nKr4z08Si6x8yTnXmRiXyvKQPFxBFoSHRNJcVe+mRkVDnxT645GxdFbCtg1Tarbl7\n++maDeRTUUciWnisXXxdxjM938DWMcrgKn2zHrp06sYHT+00iD6NKXeAm4XCdR1w\nCwIDAQAB\n-----END PUBLIC KEY-----\n",
+            "signature": "fy4vCjJjxHzLLeEjcypD3quq98JcydqPwMikixSKGPArIvUc/n3zrOiTojyQ4BNtZBhVncsEGiRNlR36Uk24Uwmek6viOhOojQBf7/B1cs1DsXERNsIZ9TEvULqd4a8pajM/OVxA8RnaY+UwASWYBDrNDnD9AZuPzcH8JVaFxAMX2qRyMrm0FdYP07T8f8fWpX6tuH61Q3+/0+OPfUHeeN1Ez2UPVRPx8pzf4dzHf1s7AcYp9ixMwN0z3gtMu2NTDd8o6H8mVYnAXVPHZyEVP4/koynl/04AsSRByyDx05LjKzirwWPUproMf2SeKpIBCm0+ZheaK4JopOIqgzCujg=="
+          }
+        ],
+        "requiredSigners": 1
+      }
+    ],
+    "signatures": [],
+    "requiredSigners": 0
+  },
+  "previousHash": "00c4bfca7881b79901296db628bc8d3e04043887214cb97ef9407b2472149186",
+  "hash": "00570fb0bc1e265cd52ada32c592db2330bd881328817c9291a89209c3d9dfe1",
+  "nonce": 167
+}

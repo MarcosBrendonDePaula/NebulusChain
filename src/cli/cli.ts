@@ -13,18 +13,21 @@ import { Storage } from '../core/storage/storage';
 import { encrypt, decrypt, parseDecryptedData } from '../core/encryption/encrypt';
 import { Node, MessageType } from '../core/p2p/node';
 import { WebSocketAPI } from '../core/api/websocket';
+import { WalletManager, WalletTransaction } from '../core/wallet/wallet';
 
 // Diretórios de dados
 const DATA_DIR = './data';
 const BLOCKCHAIN_DIR = path.join(DATA_DIR, 'blockchain');
 const KEYS_DIR = path.join(DATA_DIR, 'keys');
 const STORAGE_DIR = path.join(DATA_DIR, 'storage');
+const WALLETS_DIR = path.join(DATA_DIR, 'wallets');
 
 // Instâncias das classes principais
 let blockchain: Blockchain;
 let identity: Identity;
 let storage: Storage;
 let node: Node;
+let walletManager: WalletManager;
 
 /**
  * Inicializa os componentes do sistema
@@ -54,6 +57,14 @@ async function initializeSystem() {
   node = new Node();
   await node.start();
   console.log('Nó P2P inicializado.');
+  
+  // Inicializa o gerenciador de carteiras
+  walletManager = new WalletManager(WALLETS_DIR);
+  walletManager.initialize();
+  console.log('Gerenciador de carteiras inicializado.');
+  
+  // Calcula os saldos das carteiras
+  walletManager.calculateBalances(blockchain);
   
   console.log('Sistema Nebulus inicializado com sucesso!');
 }
@@ -171,13 +182,13 @@ async function signTransaction(filePath: string) {
       requiredSigners: data.requiredSigners || 1
     };
     
-    // Adiciona o bloco à blockchain
-    const newBlock = blockchain.addBlock(blockData);
-    console.log(`Bloco assinado e adicionado à blockchain com hash: ${newBlock.hash}`);
+    // Adiciona a transação ao pool
+    blockchain.addTransaction(blockData);
+    console.log(`Transação assinada e adicionada ao pool de transações pendentes`);
     
-    // Broadcast do novo bloco (simulado)
-    await node.broadcast(MessageType.NEW_BLOCK, {
-      blockHash: newBlock.hash
+    // Broadcast da nova transação (simulado)
+    await node.broadcast(MessageType.NEW_TRANSACTION, {
+      transaction: blockData
     });
     
   } catch (error) {
@@ -190,21 +201,44 @@ async function signTransaction(filePath: string) {
  */
 function listBlocks() {
   const blocks = blockchain.getAllBlocks();
+  const pendingCount = blockchain.getPendingTransactionsCount();
   
   console.log(`\n=== Blocos na Blockchain (${blocks.length}) ===`);
+  console.log(`Transações pendentes no pool: ${pendingCount}`);
   
   blocks.forEach((block, index) => {
     console.log(`\nBloco #${index}`);
     console.log(`Hash: ${block.hash}`);
+    console.log(`Hash anterior: ${block.previousHash}`);
     console.log(`Timestamp: ${new Date(block.timestamp).toLocaleString()}`);
     console.log(`Tipo: ${block.data.type}`);
-    console.log(`Assinaturas: ${block.data.signatures.length}`);
-    console.log(`Criptografado: ${block.data.encryption ? 'Sim' : 'Não'}`);
+    console.log(`Nonce: ${block.nonce}`);
     
-    if (!block.data.encryption) {
-      console.log('Payload:', typeof block.data.payload === 'object' 
-        ? JSON.stringify(block.data.payload, null, 2) 
-        : block.data.payload);
+    if (block.data.type === "transaction_batch") {
+      const transactions = block.data.payload as BlockData[];
+      console.log(`Contém ${transactions.length} transações:`);
+      
+      transactions.forEach((tx, txIndex) => {
+        console.log(`  Transação #${txIndex + 1}:`);
+        console.log(`  Tipo: ${tx.type}`);
+        console.log(`  Assinaturas: ${tx.signatures?.length || 0}`);
+        console.log(`  Criptografado: ${tx.encryption ? 'Sim' : 'Não'}`);
+        
+        if (!tx.encryption) {
+          console.log('  Payload:', typeof tx.payload === 'object' 
+            ? JSON.stringify(tx.payload, null, 2) 
+            : tx.payload);
+        }
+      });
+    } else {
+      console.log(`Assinaturas: ${block.data.signatures.length}`);
+      console.log(`Criptografado: ${block.data.encryption ? 'Sim' : 'Não'}`);
+      
+      if (!block.data.encryption) {
+        console.log('Payload:', typeof block.data.payload === 'object' 
+          ? JSON.stringify(block.data.payload, null, 2) 
+          : block.data.payload);
+      }
     }
   });
 }
@@ -347,15 +381,53 @@ export async function runCLI() {
     .action(async (arquivo) => {
       await signTransaction(arquivo);
     });
+    
+  // Comando para minerar um bloco imediatamente
+  program
+    .command('mine')
+    .description('Força a mineração de um bloco com as transações pendentes')
+    .action(() => {
+      const pendingCount = blockchain.getPendingTransactionsCount();
+      
+      if (pendingCount === 0) {
+        console.log('Não há transações pendentes para minerar.');
+        return;
+      }
+      
+      console.log(`Minerando bloco com ${pendingCount} transações pendentes...`);
+      const newBlock = blockchain.mineNextBlock();
+      
+      if (newBlock) {
+        console.log(`Bloco minerado com sucesso! Hash: ${newBlock.hash}`);
+        console.log(`Contém ${pendingCount} transações.`);
+      } else {
+        console.log('Falha ao minerar o bloco.');
+      }
+    });
   
   // Comando para manter o nó em execução
   program
     .command('serve')
     .description('Mantém o nó em execução e escutando por conexões')
     .option('-p, --port <port>', 'Porta para escutar conexões', '42422')
+    .option('-i, --interval <interval>', 'Intervalo de geração de blocos (ms)', '5')
+    .option('-t, --transactions <transactions>', 'Máximo de transações por bloco', '10')
     .action(async (options) => {
+      const interval = parseInt(options.interval, 10);
+      const maxTransactions = parseInt(options.transactions, 10);
+      
       console.log(`\n=== Nó Nebulus em execução (porta ${options.port}) ===`);
+      console.log(`Intervalo de geração de blocos: ${interval}ms`);
+      console.log(`Máximo de transações por bloco: ${maxTransactions}`);
       console.log('Pressione Ctrl+C para encerrar\n');
+      
+      // Reconfigura a blockchain com os novos parâmetros
+      blockchain = new Blockchain(
+        BLOCKCHAIN_DIR,
+        2, // dificuldade padrão
+        interval,
+        maxTransactions
+      );
       
       // Simula um servidor em execução
       console.log('Aguardando conexões de outros nós...');
@@ -369,11 +441,13 @@ export async function runCLI() {
         setInterval(() => {
           const peers = node.getConnectedPeers();
           const blocks = blockchain.getAllBlocks();
+          const pendingTx = blockchain.getPendingTransactionsCount();
           console.log(`\nStatus: ${new Date().toLocaleString()}`);
           console.log(`Nó ID: ${node.getNodeId()}`);
           console.log(`Peers conectados: ${peers.length}`);
           console.log(`Blocos na blockchain: ${blocks.length}`);
-        }, 30000); // A cada 30 segundos
+          console.log(`Transações pendentes: ${pendingTx}`);
+        }, 10000); // A cada 10 segundos
       });
     });
     
@@ -583,6 +657,307 @@ export async function runCLI() {
       }
     });
   
+  // Comando para criar uma nova carteira
+  program
+    .command('wallet-create')
+    .description('Cria uma nova carteira')
+    .option('-l, --label <label>', 'Nome amigável para a carteira', 'Minha Carteira')
+    .action(async (options) => {
+      try {
+        // Cria a carteira
+        const wallet = await walletManager.createWallet(options.label);
+        
+        // Registra a criação da carteira na blockchain
+        const walletCreationData: BlockData = {
+          type: 'wallet_creation',
+          payload: {
+            address: wallet.address,
+            label: wallet.label,
+            publicKey: wallet.publicKey,
+            timestamp: wallet.createdAt
+          },
+          signatures: [{
+            publicKey: identity.getPublicKey(),
+            signature: identity.sign(JSON.stringify({
+              address: wallet.address,
+              label: wallet.label,
+              publicKey: wallet.publicKey,
+              timestamp: wallet.createdAt
+            }))
+          }],
+          requiredSigners: 1
+        };
+        
+        // Adiciona a transação ao pool
+        blockchain.addTransaction(walletCreationData);
+        
+        // Exibe informações da carteira
+        console.log('\n=== Nova Carteira Criada ===');
+        console.log(`Endereço: ${wallet.address}`);
+        console.log(`Nome: ${wallet.label}`);
+        console.log(`Saldo: ${wallet.balance} NEB`);
+        console.log(`Criada em: ${new Date(wallet.createdAt).toLocaleString()}`);
+        console.log('\nChave Privada (guarde em local seguro):');
+        console.log(wallet.privateKey);
+        console.log('\nA criação da carteira foi registrada na blockchain.');
+        
+        // Broadcast da nova transação
+        await node.broadcast(MessageType.NEW_TRANSACTION, {
+          transaction: walletCreationData
+        });
+      } catch (error) {
+        console.error('Erro ao criar carteira:', error);
+      }
+    });
+    
+  // Comando para listar todas as carteiras
+  program
+    .command('wallets')
+    .description('Lista todas as carteiras')
+    .action(() => {
+      const wallets = walletManager.getAllWallets();
+      
+      console.log(`\n=== Carteiras (${wallets.length}) ===`);
+      
+      if (wallets.length === 0) {
+        console.log('Nenhuma carteira encontrada.');
+        console.log('Use o comando "wallet-create" para criar uma nova carteira.');
+        return;
+      }
+      
+      wallets.forEach((wallet, index) => {
+        console.log(`\nCarteira #${index + 1}`);
+        console.log(`Endereço: ${wallet.address}`);
+        console.log(`Nome: ${wallet.label}`);
+        console.log(`Saldo: ${wallet.balance} NEB`);
+        console.log(`Criada em: ${new Date(wallet.createdAt).toLocaleString()}`);
+      });
+    });
+    
+  // Comando para mostrar detalhes de uma carteira
+  program
+    .command('wallet')
+    .description('Mostra detalhes de uma carteira')
+    .argument('<address>', 'Endereço da carteira')
+    .action((address) => {
+      const wallet = walletManager.getWallet(address);
+      
+      if (!wallet) {
+        console.error(`Carteira não encontrada: ${address}`);
+        return;
+      }
+      
+      console.log('\n=== Detalhes da Carteira ===');
+      console.log(`Endereço: ${wallet.address}`);
+      console.log(`Nome: ${wallet.label}`);
+      console.log(`Saldo: ${wallet.balance} NEB`);
+      console.log(`Criada em: ${new Date(wallet.createdAt).toLocaleString()}`);
+      console.log('\nChave Pública:');
+      console.log(wallet.publicKey);
+    });
+    
+  // Comando para importar uma carteira
+  program
+    .command('wallet-import')
+    .description('Importa uma carteira a partir de uma chave privada')
+    .argument('<privateKey>', 'Chave privada da carteira')
+    .option('-l, --label <label>', 'Nome amigável para a carteira', 'Carteira Importada')
+    .action(async (privateKey, options) => {
+      try {
+        // Importa a carteira
+        const wallet = walletManager.importWallet(privateKey, options.label);
+        
+        // Registra a importação da carteira na blockchain
+        const walletImportData: BlockData = {
+          type: 'wallet_import',
+          payload: {
+            address: wallet.address,
+            label: wallet.label,
+            publicKey: wallet.publicKey,
+            timestamp: Date.now()
+          },
+          signatures: [{
+            publicKey: identity.getPublicKey(),
+            signature: identity.sign(JSON.stringify({
+              address: wallet.address,
+              label: wallet.label,
+              publicKey: wallet.publicKey,
+              timestamp: Date.now()
+            }))
+          }],
+          requiredSigners: 1
+        };
+        
+        // Adiciona a transação ao pool
+        blockchain.addTransaction(walletImportData);
+        
+        // Exibe informações da carteira
+        console.log('\n=== Carteira Importada ===');
+        console.log(`Endereço: ${wallet.address}`);
+        console.log(`Nome: ${wallet.label}`);
+        console.log(`Saldo: ${wallet.balance} NEB`);
+        console.log(`Criada em: ${new Date(wallet.createdAt).toLocaleString()}`);
+        console.log('\nA importação da carteira foi registrada na blockchain.');
+        
+        // Broadcast da nova transação
+        await node.broadcast(MessageType.NEW_TRANSACTION, {
+          transaction: walletImportData
+        });
+      } catch (error) {
+        console.error('Erro ao importar carteira:', error);
+      }
+    });
+    
+  // Comando para exportar uma carteira
+  program
+    .command('wallet-export')
+    .description('Exporta uma carteira (retorna a chave privada)')
+    .argument('<address>', 'Endereço da carteira')
+    .action((address) => {
+      try {
+        const privateKey = walletManager.exportWallet(address);
+        console.log('\n=== Chave Privada da Carteira ===');
+        console.log('ATENÇÃO: Guarde esta chave em local seguro. Quem tiver acesso a ela poderá controlar sua carteira.');
+        console.log(privateKey);
+      } catch (error) {
+        console.error('Erro ao exportar carteira:', error);
+      }
+    });
+    
+  // Comando para remover uma carteira
+  program
+    .command('wallet-remove')
+    .description('Remove uma carteira')
+    .argument('<address>', 'Endereço da carteira')
+    .action(async (address) => {
+      try {
+        const wallet = walletManager.getWallet(address);
+        if (!wallet) {
+          console.error(`Carteira não encontrada: ${address}`);
+          return;
+        }
+        
+        // Registra a remoção da carteira na blockchain
+        const walletRemovalData: BlockData = {
+          type: 'wallet_removal',
+          payload: {
+            address: wallet.address,
+            label: wallet.label,
+            timestamp: Date.now()
+          },
+          signatures: [{
+            publicKey: identity.getPublicKey(),
+            signature: identity.sign(JSON.stringify({
+              address: wallet.address,
+              label: wallet.label,
+              timestamp: Date.now()
+            }))
+          }],
+          requiredSigners: 1
+        };
+        
+        // Adiciona a transação ao pool
+        blockchain.addTransaction(walletRemovalData);
+        
+        // Remove a carteira
+        const removed = walletManager.removeWallet(address);
+        
+        if (removed) {
+          console.log(`Carteira removida com sucesso: ${address}`);
+          console.log('A remoção da carteira foi registrada na blockchain.');
+          
+          // Broadcast da nova transação
+          await node.broadcast(MessageType.NEW_TRANSACTION, {
+            transaction: walletRemovalData
+          });
+        } else {
+          console.error(`Erro ao remover carteira: ${address}`);
+        }
+      } catch (error) {
+        console.error('Erro ao remover carteira:', error);
+      }
+    });
+    
+  // Comando para criar uma transação entre carteiras
+  program
+    .command('wallet-send')
+    .description('Cria uma transação entre carteiras')
+    .argument('<from>', 'Endereço da carteira de origem')
+    .argument('<to>', 'Endereço da carteira de destino')
+    .argument('<amount>', 'Quantidade a transferir')
+    .action(async (from, to, amountStr) => {
+      try {
+        const amount = parseFloat(amountStr);
+        
+        if (isNaN(amount) || amount <= 0) {
+          console.error('Quantidade inválida. Deve ser um número positivo.');
+          return;
+        }
+        
+        // Cria a transação
+        const transaction = walletManager.createTransaction(from, to, amount);
+        
+        // Verifica se a transação é válida
+        if (!walletManager.verifyTransaction(transaction)) {
+          console.error('Transação inválida. Verifique os endereços e o saldo.');
+          return;
+        }
+        
+        // Cria o BlockData para a blockchain
+        const blockData: BlockData = {
+          type: 'transaction',
+          payload: transaction,
+          signatures: [{
+            publicKey: walletManager.getWallet(from)!.publicKey,
+            signature: transaction.signature!
+          }],
+          requiredSigners: 1
+        };
+        
+        // Adiciona a transação ao pool
+        blockchain.addTransaction(blockData);
+        console.log(`Transação criada e adicionada ao pool de transações pendentes`);
+        console.log(`De: ${from}`);
+        console.log(`Para: ${to}`);
+        console.log(`Quantidade: ${amount} NEB`);
+        
+        // Broadcast da nova transação
+        await node.broadcast(MessageType.NEW_TRANSACTION, {
+          transaction: blockData
+        });
+        
+      } catch (error) {
+        console.error('Erro ao criar transação:', error);
+      }
+    });
+    
+  // Comando para atualizar os saldos das carteiras
+  program
+    .command('wallet-update')
+    .description('Atualiza os saldos das carteiras com base na blockchain')
+    .action(() => {
+      try {
+        walletManager.calculateBalances(blockchain);
+        console.log('Saldos das carteiras atualizados com sucesso.');
+        
+        // Mostra os saldos atualizados
+        const wallets = walletManager.getAllWallets();
+        
+        console.log(`\n=== Saldos Atualizados (${wallets.length} carteiras) ===`);
+        
+        if (wallets.length === 0) {
+          console.log('Nenhuma carteira encontrada.');
+          return;
+        }
+        
+        wallets.forEach((wallet) => {
+          console.log(`${wallet.address} (${wallet.label}): ${wallet.balance} NEB`);
+        });
+      } catch (error) {
+        console.error('Erro ao atualizar saldos:', error);
+      }
+    });
+
   // Processa os argumentos da linha de comando
   program.parse(process.argv);
   
